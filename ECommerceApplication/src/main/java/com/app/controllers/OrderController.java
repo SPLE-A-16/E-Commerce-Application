@@ -27,12 +27,16 @@ public class OrderController {
 	
 	@Autowired
 	public OrderService orderService;
-	
+
+
 	@PostMapping("/public/users/{email}/carts/{cartId}/payments/{paymentMethod}/order")
-	public ResponseEntity<OrderDTO> orderProducts(@PathVariable String email, @PathVariable Long cartId, @PathVariable String paymentMethod) {
+	public ResponseEntity<OrderDTO> orderProducts(
+			@PathVariable String email,
+			@PathVariable Long cartId,
+			@PathVariable String paymentMethod,
+			@RequestParam(required = false) String couponCode) {
 		OrderDTO order = orderService.placeOrder(email, cartId, paymentMethod);
-		
-		return new ResponseEntity<OrderDTO>(order, HttpStatus.CREATED);
+		return new ResponseEntity<>(order, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/admin/orders")
@@ -41,7 +45,7 @@ public class OrderController {
 			@RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
 			@RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_ORDERS_BY, required = false) String sortBy,
 			@RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
-		
+
 		OrderResponse orderResponse = orderService.getAllOrders(pageNumber, pageSize, sortBy, sortOrder);
 
 		return new ResponseEntity<OrderResponse>(orderResponse, HttpStatus.FOUND);

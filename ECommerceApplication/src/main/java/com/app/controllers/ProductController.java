@@ -127,4 +127,25 @@ public class ProductController {
 		return new ResponseEntity<String>(status, HttpStatus.OK);
 	}
 
+	@PostMapping("/admin/products/{productId}/coupon/{couponId}")
+	public ResponseEntity<ProductDTO> addProductCoupon(@PathVariable Long productId, @PathVariable Long couponId) {
+
+		ProductDTO savedProduct = productService.addProductCoupon(productId, couponId);
+
+		return new ResponseEntity<ProductDTO>(savedProduct, HttpStatus.CREATED);
+	}
+
+	@GetMapping("/public/products/coupons/{couponId}")
+	public ResponseEntity<ProductResponse> getProductsByCoupon(@PathVariable Long couponId,
+																 @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+																 @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+																 @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
+																 @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
+
+		ProductResponse productResponse = productService.searchByCoupon(couponId, pageNumber, pageSize, sortBy,
+				sortOrder);
+
+		return new ResponseEntity<ProductResponse>(productResponse, HttpStatus.FOUND);
+	}
+
 }

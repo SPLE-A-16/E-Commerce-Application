@@ -3,6 +3,7 @@ package com.app.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.app.entites.Coupon;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -215,5 +216,4 @@ public class CartServiceImpl implements CartService {
 
 		return "Product " + cartItem.getProduct().getProductName() + " removed from the cart !!!";
 	}
-
 }

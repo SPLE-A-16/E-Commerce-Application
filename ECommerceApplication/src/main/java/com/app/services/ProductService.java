@@ -29,5 +29,8 @@ public interface ProductService {
 												String sortOrder);
 
 	String deleteProduct(Long productId);
+	ProductDTO addProductCoupon(Long productId, Long couponId);
+	ProductResponse searchByCoupon(Long couponId, Integer pageNumber, Integer pageSize, String sortBy,
+								   String sortOrder);
 
 }
