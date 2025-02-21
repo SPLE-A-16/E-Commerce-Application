@@ -14,8 +14,5 @@ public class CouponDTO {
     private Long id;
     private String code;
     private Double discountAmount;
-    private Double minimumPurchaseAmount;
-    private Integer maxUsage;
-    private Integer currentUsage;
     private Boolean isActive;
 }

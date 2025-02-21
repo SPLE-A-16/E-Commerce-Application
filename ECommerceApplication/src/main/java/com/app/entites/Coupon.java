@@ -2,6 +2,10 @@ package com.app.entites;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,17 +24,17 @@ public class Coupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @NotBlank
+    @Size(min = 5, message = "Coupon code must contain atleast 5 characters")
     private String code;
 
-    private Double discountAmount;
-    private Double minimumPurchaseAmount;
+    @NotBlank
+    @Min(1)
+    @Max(99)
+    private Double discountPercentage;
 
-    private Integer maxUsage;
-    private Integer currentUsage;
-
-    private Boolean isActive;
+    private Boolean isActive = true;
 
     @OneToMany(mappedBy = "coupon")
-    private List<CouponUsage> usages = new ArrayList<>();
+    private List<Product> eligibleProducts = new ArrayList<>();
 }

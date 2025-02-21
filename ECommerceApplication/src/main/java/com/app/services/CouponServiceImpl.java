@@ -1,7 +1,13 @@
 package com.app.services;
 
+import com.app.entites.Category;
 import com.app.entites.Coupon;
+import com.app.exceptions.APIException;
+import com.app.exceptions.ResourceNotFoundException;
+import com.app.payloads.CategoryDTO;
 import com.app.payloads.CouponDTO;
+import com.app.repositories.CouponRepo;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,32 +17,63 @@ import java.time.LocalDate;
 public class CouponServiceImpl implements CouponService {
 
     @Autowired
-    private CouponRepository couponRepository;
+    private CouponRepo couponRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
-    public CouponDTO validateCoupon(String code, String email) {
-        Coupon coupon = couponRepository.findByCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException("Coupon", "code", code));
+    public CouponDTO validateCoupon(String code) {
+        Coupon coupon = couponRepository.findByCode(code);
 
         if (!coupon.getIsActive()) {
             throw new APIException("Coupon is inactive");
         }
+        return modelMapper.map(coupon, CouponDTO.class);
+    }
 
-        if (LocalDate.now().isBefore(coupon.getValidFrom()) ||
-                LocalDate.now().isAfter(coupon.getValidUntil())) {
-            throw new Api("Coupon is not valid at this time");
+    @Override
+    public CouponDTO createCoupon(Coupon coupon) {
+        Coupon savedCoupon = couponRepository.findByCode(coupon.getCode());
+
+        if (savedCoupon != null) {
+            throw new APIException("Coupon with the code '" + coupon.getCode() + "' already exists !!!");
         }
 
-        if (coupon.getCurrentUsage() >= coupon.getMaxUsage()) {
-            throw new APIException("Coupon usage limit exceeded");
-        }
+        savedCoupon = couponRepository.save(coupon);
 
-        // Check if user has already used this coupon
-        if (couponRepository.hasUserUsedCoupon(email, coupon.getId())) {
-            throw new APIException("You have already used this coupon");
-        }
+        return modelMapper.map(savedCoupon, CouponDTO.class);
+    }
+
+    @Override
+    public CouponDTO updateCoupon(Long couponId, Coupon coupon) {
+        couponRepository.findById(couponId)
+                .orElseThrow(() -> new ResourceNotFoundException("Coupon", "couponId", couponId));
+
+        coupon.setId(couponId);
+
+        couponRepository.save(coupon);
 
         return modelMapper.map(coupon, CouponDTO.class);
+    }
+
+    @Override
+    public CouponDTO activateCoupon(Long couponId) {
+        Coupon savedCoupon = couponRepository.findById(couponId)
+                .orElseThrow(() -> new ResourceNotFoundException("Coupon", "couponId", couponId));
+
+        savedCoupon.setIsActive(!savedCoupon.getIsActive());
+        couponRepository.save(savedCoupon);
+
+        return modelMapper.map(savedCoupon, CouponDTO.class);
+    }
+
+    @Override
+    public void deleteCoupon(Long couponId) {
+        Coupon savedCoupon = couponRepository.findById(couponId)
+                .orElseThrow(() -> new ResourceNotFoundException("Coupon", "couponId", couponId));
+
+        couponRepository.delete(savedCoupon);
     }
 
 }
