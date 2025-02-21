@@ -28,7 +28,6 @@ public class Coupon {
     @Size(min = 5, message = "Coupon code must contain atleast 5 characters")
     private String code;
 
-    @NotBlank
     @Min(1)
     @Max(99)
     private Double discountPercentage;

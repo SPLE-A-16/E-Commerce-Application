@@ -13,6 +13,6 @@ import java.time.LocalDate;
 public class CouponDTO {
     private Long id;
     private String code;
-    private Double discountAmount;
+    private Double discountPercentage;
     private Boolean isActive;
 }

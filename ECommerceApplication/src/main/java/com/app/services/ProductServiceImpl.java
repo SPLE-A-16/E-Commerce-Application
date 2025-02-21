@@ -87,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
 			double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
 			Coupon coupon = product.getCoupon();
 
-			if (coupon != null || !coupon.getIsActive()) {
+			if (coupon != null && coupon.getIsActive()) {
 				specialPrice = specialPrice * coupon.getDiscountPercentage();
 			}
 
@@ -306,6 +306,8 @@ public class ProductServiceImpl implements ProductService {
 				.orElseThrow(() -> new ResourceNotFoundException("Coupon", "couponId", couponId));
 
 		product.setCoupon(coupon);
+		product.setDiscount(coupon.getDiscountPercentage());
+		product.setSpecialPrice(product.getPrice() * product.getDiscount() / 100);
 		Product updatedProduct = productRepo.save(product);
 		return modelMapper.map(updatedProduct, ProductDTO.class);
 	}
