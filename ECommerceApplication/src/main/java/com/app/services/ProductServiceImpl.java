@@ -225,6 +225,38 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	public ProductResponse searchProductsByFilterPrice(Double lowerPrice, Double upperPrice, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+		Sort sortByAndOrder = Sort.by(sortOrder.equalsIgnoreCase("asc") ?
+				Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
+
+		Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+		Page<Product> pageProducts = productRepo.findByPriceRange(lowerPrice, upperPrice, pageDetails);
+
+		List<Product> products = pageProducts.getContent();
+
+		if (products.size() == 0) {
+			throw new APIException("Products not found within price range: " + lowerPrice + " - " + upperPrice);
+		}
+
+		List<ProductDTO> productDTOs = pageProducts.getContent()
+				.stream()
+				.map(p -> modelMapper.map(p, ProductDTO.class))
+				.collect(Collectors.toList());
+
+		ProductResponse productResponse = new ProductResponse();
+
+		productResponse.setContent(productDTOs);
+		productResponse.setPageNumber(pageProducts.getNumber());
+		productResponse.setPageSize(pageProducts.getSize());
+		productResponse.setTotalElements(pageProducts.getTotalElements());
+		productResponse.setTotalPages(pageProducts.getTotalPages());
+		productResponse.setLastPage(pageProducts.isLast());
+
+		return productResponse;
+	}
+
+	@Override
 	public ProductDTO updateProduct(Long productId, Product product) {
 		Product productFromDB = productRepo.findById(productId)
 				.orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
